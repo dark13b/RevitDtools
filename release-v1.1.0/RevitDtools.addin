@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Dtools</Name>
+    <Assembly>E:\Revit Course\C tools\Revit tools\bin\Release\net8.0-windows10.0.26100\RevitDtools.dll</Assembly>
+    <AddInId>A1E297A6-13A1-4235-B823-3C22B01D237A</AddInId>
+    <FullClassName>RevitDtools.App</FullClassName>
+    <VendorId>Dtools</VendorId>
+    <VendorDescription>Your Name or Company</VendorDescription>
+  </AddIn>
+</RevitAddIns>
