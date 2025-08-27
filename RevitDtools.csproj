@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows10.0.26100</TargetFramework>
+		<OutputType>Library</OutputType>
+		<PlatformTarget>x64</PlatformTarget>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<AssemblyName>RevitDtools</AssemblyName>
+		<RootNamespace>RevitDtools</RootNamespace>
+		<ProjectGuid>{1BF27041-DDAF-4874-8EF1-B74D415E6708}</ProjectGuid>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="RevitAPI">
+			<HintPath>E:\Program Files\Autodesk\Revit 2026\RevitAPI.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="RevitAPIUI">
+			<HintPath>E:\Program Files\Autodesk\Revit 2026\RevitAPIUI.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="UI\Windows\SettingsWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="UI\Windows\BatchProcessingWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Documentation\UserManual.md" />
+		<None Include="Documentation\QuickStartGuide.md" />
+		<None Include="Deployment\RevitDtools.wxs" />
+		<None Include="Deployment\BuildInstaller.bat" />
+		<None Remove="packages.config" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="RevitDtools.Tests\**" />
+		<EmbeddedResource Remove="RevitDtools.Tests\**" />
+		<None Remove="RevitDtools.Tests\**" />
+	</ItemGroup>
+
+	<!-- PostBuildEvent temporarily disabled for conflict resolution testing
+	<PropertyGroup>
+		<PostBuildEvent>
+			echo Deploying Dtools for Revit
+			set "ADDIN_DIR=%APPDATA%\Autodesk\Revit\Addins\2026"
+			if not exist "%ADDIN_DIR%" mkdir "%ADDIN_DIR%"
+			echo Copying files to "%ADDIN_DIR%"
+			copy "$(TargetPath)" "%ADDIN_DIR%\"
+			copy "$(ProjectDir)RevitDtools.addin" "%ADDIN_DIR%\"
+			echo Deployment successful
+		</PostBuildEvent>
+	</PropertyGroup>
+	-->
+
+</Project>

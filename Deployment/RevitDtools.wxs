@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" 
+           Name="RevitDtools Enhanced" 
+           Language="1033" 
+           Version="2.0.0.0" 
+           Manufacturer="RevitDtools Development Team" 
+           UpgradeCode="A1E297A6-13A1-4235-B823-3C22B01D237B">
+    
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perUser" 
+             Description="Professional DWG Processing Tools for Autodesk Revit"
+             Comments="Enhanced RevitDtools with comprehensive geometry processing and batch capabilities" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Feature definitions -->
+    <Feature Id="ProductFeature" Title="RevitDtools Enhanced" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="Revit2024Components" />
+      <ComponentGroupRef Id="Revit2025Components" />
+      <ComponentGroupRef Id="Revit2026Components" />
+    </Feature>
+
+    <!-- Custom actions for version detection -->
+    <CustomAction Id="DetectRevitVersions" 
+                  BinaryKey="CustomActionBinary" 
+                  DllEntry="DetectInstalledRevitVersions" 
+                  Execute="immediate" />
+
+    <!-- Installation sequence -->
+    <InstallExecuteSequence>
+      <Custom Action="DetectRevitVersions" Before="CostFinalize" />
+    </InstallExecuteSequence>
+
+    <!-- Properties for Revit version detection -->
+    <Property Id="REVIT2024INSTALLED" Value="0" />
+    <Property Id="REVIT2025INSTALLED" Value="0" />
+    <Property Id="REVIT2026INSTALLED" Value="0" />
+
+    <!-- Registry searches for Revit installations -->
+    <Property Id="REVIT2024PATH">
+      <RegistrySearch Id="Revit2024Registry"
+                      Root="HKLM"
+                      Key="SOFTWARE\Autodesk\Revit\2024"
+                      Name="InstallLocation"
+                      Type="raw" />
+    </Property>
+
+    <Property Id="REVIT2025PATH">
+      <RegistrySearch Id="Revit2025Registry"
+                      Root="HKLM"
+                      Key="SOFTWARE\Autodesk\Revit\2025"
+                      Name="InstallLocation"
+                      Type="raw" />
+    </Property>
+
+    <Property Id="REVIT2026PATH">
+      <RegistrySearch Id="Revit2026Registry"
+                      Root="HKLM"
+                      Key="SOFTWARE\Autodesk\Revit\2026"
+                      Name="InstallLocation"
+                      Type="raw" />
+    </Property>
+
+    <!-- UI customization -->
+    <UI>
+      <UIRef Id="WixUI_FeatureTree" />
+      <UIRef Id="WixUI_ErrorProgressText" />
+      
+      <!-- Custom dialog for version selection -->
+      <Dialog Id="RevitVersionDlg" Width="370" Height="270" Title="Revit Version Selection">
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="Select Revit Versions" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="Choose which Revit versions to install RevitDtools for:" />
+        
+        <Control Id="Revit2024Check" Type="CheckBox" X="25" Y="50" Width="280" Height="17" Property="INSTALL_REVIT2024" CheckBoxValue="1" Text="Autodesk Revit 2024" />
+        <Control Id="Revit2025Check" Type="CheckBox" X="25" Y="75" Width="280" Height="17" Property="INSTALL_REVIT2025" CheckBoxValue="1" Text="Autodesk Revit 2025" />
+        <Control Id="Revit2026Check" Type="CheckBox" X="25" Y="100" Width="280" Height="17" Property="INSTALL_REVIT2026" CheckBoxValue="1" Text="Autodesk Revit 2026" />
+        
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="&amp;Back">
+          <Publish Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="&amp;Next">
+          <Publish Event="NewDialog" Value="CustomizeDlg">1</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+      </Dialog>
+    </UI>
+
+    <!-- Directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="AppDataFolder">
+        <Directory Id="AutodeskFolder" Name="Autodesk">
+          <Directory Id="RevitFolder" Name="Revit">
+            <Directory Id="AddinsFolder" Name="Addins">
+              <Directory Id="Revit2024Folder" Name="2024" />
+              <Directory Id="Revit2025Folder" Name="2025" />
+              <Directory Id="Revit2026Folder" Name="2026" />
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+      
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="RevitDtools Enhanced" />
+      </Directory>
+    </Directory>
+  </Product>
+
+  <!-- Component groups for different Revit versions -->
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="RevitDtoolsDLL" Source="$(var.RevitDtools.TargetPath)" KeyPath="yes" />
+        <File Id="NewtonsoftJson" Source="$(var.RevitDtools.TargetDir)Newtonsoft.Json.dll" />
+        <File Id="ConfigFile" Source="RevitDtools.config" />
+        <File Id="ReadmeFile" Source="README.md" />
+        <File Id="LicenseFile" Source="LICENSE.txt" />
+      </Component>
+      
+      <Component Id="Documentation" Guid="*">
+        <File Id="UserManual" Source="Documentation\UserManual.pdf" />
+        <File Id="QuickStart" Source="Documentation\QuickStartGuide.pdf" />
+        <File Id="TechnicalDocs" Source="Documentation\TechnicalDocumentation.pdf" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="Revit2024Components" Directory="Revit2024Folder">
+      <Component Id="Revit2024Addin" Guid="*" Condition="INSTALL_REVIT2024">
+        <File Id="Revit2024AddinFile" Source="RevitDtools2024.addin" KeyPath="yes" />
+        <File Id="Revit2024DLL" Source="$(var.RevitDtools.TargetPath)" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="Revit2025Components" Directory="Revit2025Folder">
+      <Component Id="Revit2025Addin" Guid="*" Condition="INSTALL_REVIT2025">
+        <File Id="Revit2025AddinFile" Source="RevitDtools2025.addin" KeyPath="yes" />
+        <File Id="Revit2025DLL" Source="$(var.RevitDtools.TargetPath)" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="Revit2026Components" Directory="Revit2026Folder">
+      <Component Id="Revit2026Addin" Guid="*" Condition="INSTALL_REVIT2026">
+        <File Id="Revit2026AddinFile" Source="RevitDtools2026.addin" KeyPath="yes" />
+        <File Id="Revit2026DLL" Source="$(var.RevitDtools.TargetPath)" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Binary for custom actions -->
+  <Fragment>
+    <Binary Id="CustomActionBinary" SourceFile="CustomActions.dll" />
+  </Fragment>
+</Wix>

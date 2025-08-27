@@ -1,0 +1,176 @@
+<Window x:Class="RevitDtools.UI.Windows.BatchProcessingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Batch Column Creation - RevitDtools" 
+        Height="700" 
+        Width="900"
+        MinHeight="600"
+        MinWidth="800"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+    
+    <Window.Resources>
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+        
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="MinWidth" Value="100"/>
+        </Style>
+        
+        <Style x:Key="ProgressTextStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="200"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Line Selection Section -->
+        <GroupBox Grid.Row="0" Header="Line Selection" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Line Selection Options -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Select lines for column creation:" Margin="0,0,0,5"/>
+                <Button Grid.Row="0" Grid.Column="1" Name="SelectLinesButton" Content="Select Lines..." 
+                        Style="{StaticResource ButtonStyle}" Click="SelectLinesButton_Click"/>
+                <Button Grid.Row="0" Grid.Column="2" Name="SelectAllLinesButton" Content="Select All Lines" 
+                        Style="{StaticResource ButtonStyle}" Click="SelectAllLinesButton_Click"/>
+
+                <!-- Auto-selection Options -->
+                <CheckBox Grid.Row="1" Grid.Column="0" Name="AutoSelectAllCheckBox" 
+                          Content="Automatically select all lines in current view" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                <Button Grid.Row="1" Grid.Column="1" Name="ClearSelectionButton" Content="Clear Selection" 
+                        Style="{StaticResource ButtonStyle}" Click="ClearSelectionButton_Click"/>
+
+                <!-- Selected Lines Count -->
+                <TextBlock Grid.Row="2" Grid.Column="0" Name="SelectedLinesText" 
+                           Text="No lines selected" Margin="0,10,0,0" FontWeight="Bold"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Family Selection Section -->
+        <GroupBox Grid.Row="1" Header="Column Family Settings" Padding="10" Margin="0,10,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Primary Family:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="PrimaryFamilyComboBox" Margin="0,0,10,0"/>
+                <Button Grid.Row="0" Grid.Column="2" Name="RefreshFamiliesButton" Content="Refresh" 
+                        Style="{StaticResource ButtonStyle}" Click="RefreshFamiliesButton_Click"/>
+
+                <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="AutoMatchDimensionsCheckBox" 
+                          Content="Automatically match line dimensions to family types" 
+                          VerticalAlignment="Center" Margin="0,10,0,0" IsChecked="True"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Selected Lines List -->
+        <GroupBox Grid.Row="2" Header="Selected Lines" Padding="10" Margin="0,10,0,0">
+            <ListView Name="LinesListView" SelectionMode="Extended">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Line ID" Width="80" DisplayMemberBinding="{Binding LineId}"/>
+                        <GridViewColumn Header="Length" Width="100" DisplayMemberBinding="{Binding Length}"/>
+                        <GridViewColumn Header="Start Point" Width="150" DisplayMemberBinding="{Binding StartPoint}"/>
+                        <GridViewColumn Header="End Point" Width="150" DisplayMemberBinding="{Binding EndPoint}"/>
+                        <GridViewColumn Header="Matched Family" Width="200" DisplayMemberBinding="{Binding MatchedFamily}"/>
+                        <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </GroupBox>
+
+        <!-- Progress Section -->
+        <GroupBox Grid.Row="3" Header="Processing Progress" Padding="10" Margin="0,10,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <ProgressBar Grid.Row="0" Name="OverallProgressBar" Height="20" Margin="0,0,0,5"/>
+                
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Name="CurrentFileText" Style="{StaticResource ProgressTextStyle}"/>
+                    <TextBlock Grid.Column="1" Name="ProgressPercentText" Style="{StaticResource ProgressTextStyle}"/>
+                </Grid>
+
+                <TextBlock Grid.Row="2" Name="ProcessingStatusText" Style="{StaticResource ProgressTextStyle}"/>
+                
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Name="ElapsedTimeText" Style="{StaticResource ProgressTextStyle}"/>
+                    <TextBlock Grid.Column="1" Name="EstimatedTimeText" Style="{StaticResource ProgressTextStyle}"/>
+                </Grid>
+
+                <TextBlock Grid.Row="4" Name="SummaryText" Style="{StaticResource ProgressTextStyle}" FontWeight="Bold"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Results Section -->
+        <GroupBox Grid.Row="4" Header="Processing Results" Padding="10" Margin="0,10,0,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBox Name="ResultsTextBox" 
+                         IsReadOnly="True" 
+                         TextWrapping="Wrap" 
+                         FontFamily="Consolas" 
+                         FontSize="11"
+                         Background="LightGray"
+                         BorderThickness="0"/>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Name="StartProcessingButton" Content="Start Processing" 
+                    Style="{StaticResource ButtonStyle}" Click="StartProcessingButton_Click" IsDefault="True"/>
+            <Button Name="CancelButton" Content="Cancel" 
+                    Style="{StaticResource ButtonStyle}" Click="CancelButton_Click"/>
+            <Button Name="SaveReportButton" Content="Save Report..." 
+                    Style="{StaticResource ButtonStyle}" Click="SaveReportButton_Click" IsEnabled="False"/>
+            <Button Name="CloseButton" Content="Close" 
+                    Style="{StaticResource ButtonStyle}" Click="CloseButton_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>
